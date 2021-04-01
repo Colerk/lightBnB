@@ -30,16 +30,6 @@ const pool = new Pool({
   })
 }
   
-  // let user;
-  // for (const userId in users) {
-  //   user = users[userId];
-  //   if (user.email.toLowerCase() === email.toLowerCase()) {
-  //     break;
-  //   } else {
-  //     user = null;
-  //   }
-  // }
-  // return Promise.resolve(user);
 exports.getUserWithEmail = getUserWithEmail;
 
 /**
@@ -97,7 +87,6 @@ const getAllReservations = function(guest_id, limit = 10) {
     console.log(res.rows)
     return Promise.resolve(res.rows)
   })
-  // return getAllProperties(null, 2);
 }
 exports.getAllReservations = getAllReservations;
 
@@ -191,9 +180,42 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+  return pool.query(`
+  INSERT INTO properties (
+    owner_id, 
+    title, 
+    description, 
+    thumbnail_photo_url,
+    cover_photo_url,
+    cost_per_night,
+    street,
+    city,
+    province,
+    post_code,
+    country,
+    parking_spaces,
+    number_of_bathrooms,
+    number_of_bedrooms
+  )
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+  RETURNING *;
+  `, [
+    property.owner_id, 
+    property.title, 
+    property.descirption, 
+    property.thumbnail_photo_url,
+    property.cover_photo_url,
+    property.cost_per_night,
+    property.street,
+    property.city,
+    property.province,
+    property.post_code,
+    property.country,
+    property.parking_spaces,
+    property.number_of_bathrooms,
+    property.number_of_bedrooms])
+  .then(res => {
+    return Promise.resolve(res.rows[0])
+  })
 }
 exports.addProperty = addProperty;
